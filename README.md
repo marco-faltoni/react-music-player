@@ -2,7 +2,7 @@
 
 <p align="center"><img  width="70%" src="https://github.com/marco-faltoni/react-music-player/blob/main/screen.png"></p>
 
-<p align="center"> # Nice and simple Music Player using only React. Used most of the features of the framework, like components, props, state and references. </p>
+<p align="center">Nice and simple Music Player using only React. Used most of the features of the framework, like components, props, state and references. </p>
 
 
 
