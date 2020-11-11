@@ -10,7 +10,7 @@ import Library from './components/Library';
 import Nav from './components/Nav';
 
 // import data songs
-import data from './util';
+import data from './data';
 
 
 function App() {
@@ -24,15 +24,32 @@ function App() {
     const [songInfo, setSongInfo] = useState({
       currentTime: 0,
       duration: 0,
+      animationPercentage: 0,
     })
     const [libraryStatus, setLibraryStatus] = useState(false);
 
     const timeUpdateHandler = (e) => {
       const current = e.target.currentTime;
       const duration = e.target.duration;
-      setSongInfo({...songInfo, currentTime: current, duration: duration});
-    }
 
+      // semplifico in numeri interi il tempo corrente e la durata della canzone
+      const roundedCurrent = Math.round(current);
+      const roundedDuration = Math.round(duration);
+      // divido le due variabili sopra per ottenere un numero percentuale
+      const animationTotal = Math.round((roundedCurrent / roundedDuration) * 100);
+      // console.log(animationTotal);
+
+      setSongInfo({...songInfo, currentTime: current, duration: duration, animationPercentage: animationTotal });
+    }
+    
+    const songsEndHandler = async () => {
+      let currentIndex = songs.findIndex((song) => song.id === currentSong.id);
+      // imposto l'indice delle canzone principale in base all'indice attuale aumentato di 1, e quando arrivo alla fine reimposto l'indice a 0 grazie alla metodo %; in pratica se l'indice arriva al massimo della lunghezza delle canzoni totali, il resto da 0 e lo reimposta l'indice a 0
+      await setCurrentSong(songs[(currentIndex + 1) % songs.length]);
+      if (isPlaying) {
+        audioRef.current.play();
+      }
+    }
     
     
 
@@ -50,6 +67,7 @@ function App() {
           setSongInfo={setSongInfo}
           songs={songs}
           setCurrentSong={setCurrentSong}
+          setSongs={setSongs}
         />
         <Library
           audioRef={audioRef}
@@ -65,6 +83,7 @@ function App() {
           onLoadedMetadata={timeUpdateHandler} 
           ref={audioRef} 
           src={currentSong.audio} 
+          onEnded={songsEndHandler}
         ></audio>
       </div>
     );

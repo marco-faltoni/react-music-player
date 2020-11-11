@@ -1,9 +1,10 @@
 import React from 'react';
+// import { playAudio } from '../util';
 
 const LibrarySong = ({song, songs, setCurrentSong, audioRef, isPlaying, id, setSongs }) => {
-    const songSelectHandler = () => {
+    const songSelectHandler = async () => {
         // aggiorno l'interfaccia principale con la canzone cliccata
-        setCurrentSong(song);
+        await setCurrentSong(song);
 
         // mapping all the songs and checks the one with the id clicked
         const newSongs = songs.map((song)=>{
@@ -20,19 +21,13 @@ const LibrarySong = ({song, songs, setCurrentSong, audioRef, isPlaying, id, setS
                 }
             }
         });
+        // faccio iniziare la canzone successiva se quando skippo la canzone precedente questa è in riproduzione
+        if (isPlaying) {
+            audioRef.current.play();
+        }
         // cambio lo state delle songs con la nuova configurazione fatta sopra
         setSongs(newSongs);
-        // check if the previous song is playing
-        if (isPlaying) {           
-            // if it's true then play next song
-            const playPromise = audioRef.current.play();
-            // wait until the song is loaded up
-            if (playPromise !== undefined) {
-                playPromise.then((audio) =>{
-                    audioRef.current.play();
-                })
-            }
-        }
+        
     }
     return (
         <div onClick={songSelectHandler} className= {`library-song ${song.active ? 'selected' : ""} `}>
