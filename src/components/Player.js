@@ -1,23 +1,23 @@
-import React, {useEffect} from 'react';
+import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlay, faAngleLeft, faAngleRight, faPause } from '@fortawesome/free-solid-svg-icons';
 // import { playAudio } from '../util';
 
 const Player = ({audioRef, currentSong, isPlaying, setIsPlaying, setSongInfo,songInfo, setCurrentSong, songs, setSongs }) => {
 
-    useEffect(() => {
+    const activeLibraryHandler = (nextPrev) => {
         // // alternative version more compact
         // setSongs((prevSongs) => {
         //     return prevSongs.map((s) => ({
         //         ...s,
-        //         active: s.id === currentSong.id,
+        //         active: s.id === nextPrev.id,
         //     }));
         // });
 
         // mapping all the songs and checks the one with the id clicked
         const newSongs = songs.map((song)=>{
             // quando trovo tra tutte le canzoni l'id corrispondente a quello cliccato, setto la chiave active come true, e con l'else setto gli altri come false
-            if (song.id === currentSong.id ) {
+            if (song.id === nextPrev.id ) {
                 return{
                     ...song,
                     active: true,
@@ -31,7 +31,7 @@ const Player = ({audioRef, currentSong, isPlaying, setIsPlaying, setSongInfo,son
         });
         // cambio lo state delle songs con la nuova configurazione fatta sopra
         setSongs(newSongs);
-    }, [currentSong]);
+    }
     
     // event handlers
     const playSongHandler = () => {
@@ -71,12 +71,14 @@ const Player = ({audioRef, currentSong, isPlaying, setIsPlaying, setSongInfo,son
         // check, se ho cliccato sul pulsante avanti o indietro 
         if (direction === 'skip-forward') {
             // imposto l'indice delle canzone principale in base all'indice attuale aumentato di 1, e quando arrivo alla fine reimposto l'indice a 0 grazie alla metodo %; in pratica se l'indice arriva al massimo della lunghezza delle canzoni totali, il resto da 0 e lo reimposta l'indice a 0
-            await setCurrentSong(songs[(currentIndex + 1) % songs.length])
+            await setCurrentSong(songs[(currentIndex + 1) % songs.length]);
+            activeLibraryHandler(songs[(currentIndex + 1) % songs.length])
         } else if (direction === 'skip-back') {
             // nel caso mi trovi alla canzone iniziale che ha indice 0, l'indice andrebbe a -1 e non va bene, quindi reimposto l'indice della canzone principale uguale all'ultima della lista, facendo cosi apparire l'ultima canzone
             if ((currentIndex - 1) % songs.length === -1) {
 
                 await setCurrentSong(songs[songs.length - 1]);
+                activeLibraryHandler(songs[songs.length - 1]);
                 if (isPlaying) {
                     audioRef.current.play();
                 }
@@ -84,7 +86,8 @@ const Player = ({audioRef, currentSong, isPlaying, setIsPlaying, setSongInfo,son
                 return;
             }
             // nel caso non mi trovi alla conzone attuale, imposto l'indice della canzone principale sottraendolo di 1 e facendo visualizzare quindi la canzone precendente
-            await setCurrentSong(songs[(currentIndex - 1) % songs.length])
+            await setCurrentSong(songs[(currentIndex - 1) % songs.length]);
+            activeLibraryHandler(songs[(currentIndex - 1) % songs.length]);
         }
         // faccio iniziare la canzone successiva se quando skippo la canzone precedente questa è in riproduzione
         if (isPlaying) {
